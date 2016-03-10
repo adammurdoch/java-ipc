@@ -2,7 +2,7 @@ package net.rubygrapefruit.ipc.message;
 
 import java.io.IOException;
 
-public interface Client {
+public interface ReceivingAgent {
     void setConfig(String config);
 
     void receiveTo(Receiver receiver);

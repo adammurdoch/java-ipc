@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class TcpServer extends Agent implements Server {
+public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
     private ServerSocket serverSocket;
     private ExecutorService executorService;
     private Generator generator;

@@ -2,7 +2,7 @@ package net.rubygrapefruit.ipc.message;
 
 import java.io.IOException;
 
-public interface Server {
+public interface GeneratingAgent {
     void start() throws IOException;
 
     String getConfig();

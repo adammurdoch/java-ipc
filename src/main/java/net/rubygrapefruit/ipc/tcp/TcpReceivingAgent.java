@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class TcpClient extends Agent implements Client {
+public class TcpReceivingAgent extends Agent implements ReceivingAgent {
     private int port;
     private Socket socket;
     private Receiver receiver;

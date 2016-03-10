@@ -1,8 +1,8 @@
 package net.rubygrapefruit.ipc;
 
 import net.rubygrapefruit.ipc.message.Message;
-import net.rubygrapefruit.ipc.message.Server;
-import net.rubygrapefruit.ipc.tcp.TcpServer;
+import net.rubygrapefruit.ipc.message.GeneratingAgent;
+import net.rubygrapefruit.ipc.tcp.TcpGeneratingAgent;
 import net.rubygrapefruit.ipc.worker.WorkerMain;
 
 import java.io.File;
@@ -10,20 +10,20 @@ import java.net.URL;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        System.out.println("* Starting server");
-        Server server = new TcpServer();
-        server.generateFrom(dispatch -> {
+        System.out.println("* Starting agent");
+        GeneratingAgent agent = new TcpGeneratingAgent();
+        agent.generateFrom(dispatch -> {
             for (int i = 0; i < 20000; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
             }
             dispatch.send(new Message("done"));
         });
-        server.receiveTo((message, context) -> {
+        agent.receiveTo((message, context) -> {
             if (message.text.equals("done")) {
                 context.done();
             }
         });
-        server.start();
+        agent.start();
 
         System.out.println("* Starting worker");
         URL codeSource = Main.class.getProtectionDomain().getCodeSource().getLocation();
@@ -32,10 +32,10 @@ public class Main {
         }
         File classPath = new File(codeSource.toURI());
         ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("java.home") + "/bin/java", "-cp",
-                classPath.getAbsolutePath(), WorkerMain.class.getName(), server.getConfig());
+                classPath.getAbsolutePath(), WorkerMain.class.getName(), agent.getConfig());
         processBuilder.inheritIO().start().waitFor();
 
         System.out.println("* Waiting for completion");
-        server.stop();
+        agent.stop();
     }
 }
