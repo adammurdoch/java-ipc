@@ -9,13 +9,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class TcpServer extends Agent {
+public class TcpServer extends Agent implements Server {
     private ServerSocket serverSocket;
     private ExecutorService executorService;
     private Generator generator;
     private Receiver receiver;
     private Socket clientConnection;
 
+    @Override
     public void start() throws IOException {
         serverSocket = new ServerSocket(0);
         executorService = Executors.newCachedThreadPool();
@@ -41,18 +42,22 @@ public class TcpServer extends Agent {
         });
     }
 
+    @Override
     public String getConfig() {
         return String.valueOf(serverSocket.getLocalPort());
     }
 
+    @Override
     public void generateFrom(Generator generator) {
         this.generator = generator;
     }
 
+    @Override
     public void receiveTo(Receiver receiver) {
         this.receiver = receiver;
     }
 
+    @Override
     public void stop() throws Exception {
         try {
             serverSocket.close();
