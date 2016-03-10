@@ -32,13 +32,9 @@ public class TcpServer extends Agent {
                         throw new RuntimeException("Failure in worker thread.", e);
                     }
                 });
-                generator.generate(new Dispatch() {
-                    @Override
-                    public void send(Message message) throws IOException {
-                        Message.write(message, serializer);
-                        serializer.flush();
-                    }
-                });
+                DispatchImpl dispatch = new DispatchImpl(serializer);
+                generator.generate(dispatch);
+                System.out.println("* Generated " + dispatch.writeCount + " messages.");
             } catch (IOException e) {
                 throw new RuntimeException("Failure in worker thread.", e);
             }
@@ -70,6 +66,23 @@ public class TcpServer extends Agent {
         } finally {
             serverSocket = null;
             executorService = null;
+        }
+    }
+
+    private static class DispatchImpl implements Dispatch {
+        private final Serializer serializer;
+        int writeCount;
+
+        public DispatchImpl(Serializer serializer) {
+            this.serializer = serializer;
+            writeCount = 0;
+        }
+
+        @Override
+        public void send(Message message) throws IOException {
+            Message.write(message, serializer);
+            writeCount++;
+            serializer.flush();
         }
     }
 }

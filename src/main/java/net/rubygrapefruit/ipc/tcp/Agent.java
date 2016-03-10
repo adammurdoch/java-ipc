@@ -2,33 +2,40 @@ package net.rubygrapefruit.ipc.tcp;
 
 import net.rubygrapefruit.ipc.message.*;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Agent {
-    protected void writeTo(Message message, DataOutputStream outputStream) throws IOException {
-        byte[] bytes = message.text.getBytes();
-        outputStream.writeInt(bytes.length);
-        outputStream.write(bytes);
-    }
-
     protected void worker(Deserializer deserializer, final Serializer serializer, Receiver receiver)
             throws IOException {
-        AtomicBoolean done = new AtomicBoolean();
-        while (!done.get()) {
+        int readCound = 0;
+        ReceiveContextImpl context = new ReceiveContextImpl(serializer);
+        while (!context.done) {
             Message message = Message.read(deserializer);
-            receiver.receive(message, new ReceiveContext() {
-                @Override
-                public void done() {
-                    done.set(true);
-                }
+            readCound++;
+            receiver.receive(message, context);
+        }
+        System.out.println("* Receiver handled " + readCound + " messages, sent " + context.writeCount + " messages.");
+    }
 
-                @Override
-                public void send(Message message) throws IOException {
-                    Message.write(message, serializer);
-                }
-            });
+    private static class ReceiveContextImpl implements ReceiveContext {
+        private final Serializer serializer;
+        int writeCount;
+        boolean done;
+
+        public ReceiveContextImpl(Serializer serializer) {
+            this.serializer = serializer;
+            writeCount = 0;
+        }
+
+        @Override
+        public void done() {
+            done = true;
+        }
+
+        @Override
+        public void send(Message message) throws IOException {
+            Message.write(message, serializer);
+            writeCount++;
         }
     }
 }

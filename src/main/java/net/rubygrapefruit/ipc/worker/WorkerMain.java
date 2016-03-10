@@ -17,7 +17,8 @@ public class WorkerMain {
         });
         client.setConfig(args[0]);
         client.start();
-        System.out.println("* Worker stopping connection");
+        System.out.println("* Worker waiting for completion");
         client.stop();
+        System.out.println("* Worker done");
     }
 }

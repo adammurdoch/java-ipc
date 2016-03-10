@@ -35,7 +35,7 @@ public class Main {
                 classPath.getAbsolutePath(), WorkerMain.class.getName(), tcpServer.getConfig());
         processBuilder.inheritIO().start().waitFor();
 
-        System.out.println("* Stopping server");
+        System.out.println("* Waiting for completion");
         tcpServer.stop();
     }
 }
