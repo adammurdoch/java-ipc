@@ -1,2 +1,3 @@
 # java-ipc
-some experiments in ipc for java
+
+Some experiments for various IPC techniques for java.
