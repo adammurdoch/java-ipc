@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 repositories {
@@ -7,6 +8,7 @@ repositories {
 }
 
 sourceCompatibility = 1.8
+mainClassName = 'net.rubygrapefruit.ipc.Main'
 
 dependencies {
     testCompile 'junit:junit:4.12'
