@@ -1,5 +1,6 @@
 package net.rubygrapefruit.ipc;
 
+import net.rubygrapefruit.ipc.message.Message;
 import net.rubygrapefruit.ipc.tcp.TcpServer;
 import net.rubygrapefruit.ipc.worker.WorkerMain;
 

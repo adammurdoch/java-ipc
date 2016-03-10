@@ -1,4 +1,4 @@
-package net.rubygrapefruit.ipc;
+package net.rubygrapefruit.ipc.message;
 
 public interface ReceiveContext extends Dispatch {
     void done();

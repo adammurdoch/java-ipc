@@ -1,4 +1,4 @@
-package net.rubygrapefruit.ipc;
+package net.rubygrapefruit.ipc.message;
 
 import java.io.IOException;
 

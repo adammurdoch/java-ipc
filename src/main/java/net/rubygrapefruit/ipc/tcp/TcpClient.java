@@ -1,9 +1,7 @@
 package net.rubygrapefruit.ipc.tcp;
 
-import net.rubygrapefruit.ipc.Receiver;
+import net.rubygrapefruit.ipc.message.*;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -26,9 +24,9 @@ public class TcpClient extends Agent {
     }
 
     public void stop() throws IOException {
-        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-        worker(inputStream, outputStream, receiver);
+        Deserializer deserializer = new InputStreamBackedDeserializer(socket.getInputStream());
+        Serializer serializer = new OutputStreamBackedSerializer(socket.getOutputStream());
+        worker(deserializer, serializer, receiver);
         try {
             socket.close();
         } finally {

@@ -1,12 +1,7 @@
 package net.rubygrapefruit.ipc.tcp;
 
-import net.rubygrapefruit.ipc.Dispatch;
-import net.rubygrapefruit.ipc.Generator;
-import net.rubygrapefruit.ipc.Message;
-import net.rubygrapefruit.ipc.Receiver;
+import net.rubygrapefruit.ipc.message.*;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -28,11 +23,11 @@ public class TcpServer extends Agent {
             try {
                 clientConnection = serverSocket.accept();
                 System.out.println("* Connected");
-                DataOutputStream outputStream = new DataOutputStream(clientConnection.getOutputStream());
-                DataInputStream inputStream = new DataInputStream(clientConnection.getInputStream());
+                Serializer serializer = new OutputStreamBackedSerializer(clientConnection.getOutputStream());
+                Deserializer deserializer = new InputStreamBackedDeserializer(clientConnection.getInputStream());
                 executorService.execute(() -> {
                     try {
-                        worker(inputStream, outputStream, receiver);
+                        worker(deserializer, serializer, receiver);
                     } catch (IOException e) {
                         throw new RuntimeException("Failure in worker thread.", e);
                     }
@@ -40,8 +35,8 @@ public class TcpServer extends Agent {
                 generator.generate(new Dispatch() {
                     @Override
                     public void send(Message message) throws IOException {
-                        writeTo(message, outputStream);
-                        outputStream.flush();
+                        Message.write(message, serializer);
+                        serializer.flush();
                     }
                 });
             } catch (IOException e) {
