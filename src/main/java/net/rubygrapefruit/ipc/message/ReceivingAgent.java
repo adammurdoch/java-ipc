@@ -9,5 +9,5 @@ public interface ReceivingAgent {
 
     void start() throws IOException;
 
-    void stop() throws IOException;
+    void waitForCompletion() throws IOException;
 }

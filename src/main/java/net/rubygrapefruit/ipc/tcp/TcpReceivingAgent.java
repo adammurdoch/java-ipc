@@ -27,7 +27,7 @@ public class TcpReceivingAgent extends Agent implements ReceivingAgent {
     }
 
     @Override
-    public void stop() throws IOException {
+    public void waitForCompletion() throws IOException {
         Deserializer deserializer = new InputStreamBackedDeserializer(socket.getInputStream());
         Serializer serializer = new OutputStreamBackedSerializer(socket.getOutputStream());
         worker(deserializer, serializer, receiver);

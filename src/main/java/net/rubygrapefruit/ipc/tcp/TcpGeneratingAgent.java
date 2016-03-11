@@ -5,21 +5,17 @@ import net.rubygrapefruit.ipc.message.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
     private ServerSocket serverSocket;
-    private ExecutorService executorService;
     private Generator generator;
     private Receiver receiver;
     private Socket clientConnection;
 
     @Override
     public void start() throws IOException {
+        super.start();
         serverSocket = new ServerSocket(0);
-        executorService = Executors.newCachedThreadPool();
         executorService.execute(() -> {
             try {
                 clientConnection = serverSocket.accept();
@@ -58,13 +54,10 @@ public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void waitForCompletion() throws Exception {
         try {
             serverSocket.close();
-            executorService.shutdown();
-            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                throw new RuntimeException("Timeout waiting for completion.");
-            }
+            super.stop();
             if (clientConnection != null) {
                 clientConnection.close();
             }

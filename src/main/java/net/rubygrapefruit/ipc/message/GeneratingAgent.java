@@ -11,5 +11,5 @@ public interface GeneratingAgent {
 
     void receiveTo(Receiver receiver);
 
-    void stop() throws Exception;
+    void waitForCompletion() throws Exception;
 }

@@ -1,17 +1,22 @@
 package net.rubygrapefruit.ipc;
 
-import net.rubygrapefruit.ipc.message.Message;
+import net.rubygrapefruit.ipc.file.FileGeneratingAgent;
 import net.rubygrapefruit.ipc.message.GeneratingAgent;
+import net.rubygrapefruit.ipc.message.Message;
 import net.rubygrapefruit.ipc.tcp.TcpGeneratingAgent;
 import net.rubygrapefruit.ipc.worker.WorkerMain;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        System.out.println("* Starting agent");
-        GeneratingAgent agent = new TcpGeneratingAgent();
+        Transport transport = toTransport(args[0]);
+        System.out.println("transport: " + transport);
+
+        System.out.println("* Starting generator");
+        GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
             for (int i = 0; i < 20000; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
@@ -25,17 +30,41 @@ public class Main {
         });
         agent.start();
 
-        System.out.println("* Starting worker");
+        System.out.println("* Starting worker process");
+        File classPath = getClassPath();
+        ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("java.home") + "/bin/java", "-cp",
+                classPath.getAbsolutePath(), WorkerMain.class.getName(), transport.name(), agent.getConfig());
+        processBuilder.inheritIO().start().waitFor();
+
+        System.out.println("* Waiting for generator completion");
+        agent.waitForCompletion();
+    }
+
+    private static File getClassPath() throws URISyntaxException {
         URL codeSource = Main.class.getProtectionDomain().getCodeSource().getLocation();
         if (!codeSource.getProtocol().equals("file")) {
             throw new RuntimeException("Cannot calculate classpath from " + codeSource);
         }
-        File classPath = new File(codeSource.toURI());
-        ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("java.home") + "/bin/java", "-cp",
-                classPath.getAbsolutePath(), WorkerMain.class.getName(), agent.getConfig());
-        processBuilder.inheritIO().start().waitFor();
+        return new File(codeSource.toURI());
+    }
 
-        System.out.println("* Waiting for completion");
-        agent.stop();
+    private static GeneratingAgent createAgent(Transport transport) {
+        switch (transport) {
+            case Tcp:
+                return new TcpGeneratingAgent();
+            case File:
+                return new FileGeneratingAgent();
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    private static Transport toTransport(String arg) {
+        for (Transport transport : Transport.values()) {
+            if (transport.name().equalsIgnoreCase(arg)) {
+                return transport;
+            }
+        }
+        throw new RuntimeException("Unknown transport " + arg);
     }
 }
