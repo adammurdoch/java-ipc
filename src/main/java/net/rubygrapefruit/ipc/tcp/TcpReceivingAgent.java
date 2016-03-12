@@ -30,7 +30,7 @@ public class TcpReceivingAgent extends Agent implements ReceivingAgent {
     public void waitForCompletion() throws IOException {
         Deserializer deserializer = new InputStreamBackedDeserializer(socket.getInputStream());
         Serializer serializer = new OutputStreamBackedSerializer(socket.getOutputStream());
-        worker(deserializer, serializer, receiver);
+        receiverLoop(deserializer, serializer, receiver);
         try {
             socket.close();
         } finally {

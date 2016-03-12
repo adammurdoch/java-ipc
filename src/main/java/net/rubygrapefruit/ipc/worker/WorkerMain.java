@@ -9,11 +9,12 @@ import net.rubygrapefruit.ipc.tcp.TcpReceivingAgent;
 public class WorkerMain {
     public static void main(String[] args) throws Exception {
         Transport transport = Transport.valueOf(args[0]);
-        System.out.println("worker transport: " + transport);
+        System.out.println("* Worker transport: " + transport);
 
         System.out.println("* Worker starting connection");
         ReceivingAgent agent = createAgent(transport);
         agent.receiveTo((message, context) -> {
+            System.out.println("* Worker received: " + message.text);
             context.send(new Message("start: " + message.text));
             context.send(new Message("status"));
             context.send(new Message("finished"));

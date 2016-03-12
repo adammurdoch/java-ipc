@@ -13,12 +13,12 @@ import java.net.URL;
 public class Main {
     public static void main(String[] args) throws Exception {
         Transport transport = toTransport(args[0]);
-        System.out.println("transport: " + transport);
+        System.out.println("* Transport: " + transport);
 
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
-            for (int i = 0; i < 20000; i++) {
+            for (int i = 0; i < 4; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
             }
             dispatch.send(new Message("done"));

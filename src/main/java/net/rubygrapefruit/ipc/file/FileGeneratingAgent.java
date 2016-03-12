@@ -11,15 +11,17 @@ import java.io.IOException;
 public class FileGeneratingAgent extends Agent implements GeneratingAgent {
     private File send;
     private File receive;
+    private Generator generator;
+    private Receiver receiver;
 
     @Override
     public void generateFrom(Generator generator) {
-
+        this.generator = generator;
     }
 
     @Override
     public void receiveTo(Receiver receiver) {
-
+        this.receiver = receiver;
     }
 
     @Override
@@ -30,6 +32,13 @@ public class FileGeneratingAgent extends Agent implements GeneratingAgent {
         receive.deleteOnExit();
         System.out.println("send on: " + send);
         System.out.println("receive on: " + receive);
+
+        MemoryMappedFileBackedSerializer serializer = new MemoryMappedFileBackedSerializer(send);
+        try {
+            generatorLoop(serializer, generator);
+        } finally {
+            serializer.close();
+        }
     }
 
     @Override

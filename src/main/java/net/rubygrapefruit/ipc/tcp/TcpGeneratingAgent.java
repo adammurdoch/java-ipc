@@ -22,16 +22,8 @@ public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
                 System.out.println("* Connected");
                 Serializer serializer = new OutputStreamBackedSerializer(clientConnection.getOutputStream());
                 Deserializer deserializer = new InputStreamBackedDeserializer(clientConnection.getInputStream());
-                executorService.execute(() -> {
-                    try {
-                        worker(deserializer, serializer, receiver);
-                    } catch (IOException e) {
-                        throw new RuntimeException("Failure in worker thread.", e);
-                    }
-                });
-                DispatchImpl dispatch = new DispatchImpl(serializer);
-                generator.generate(dispatch);
-                System.out.println("* Generated " + dispatch.writeCount + " messages.");
+                startReceiverLoop(serializer, deserializer, receiver);
+                generatorLoop(serializer, generator);
             } catch (IOException e) {
                 throw new RuntimeException("Failure in worker thread.", e);
             }
@@ -64,23 +56,6 @@ public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
         } finally {
             serverSocket = null;
             executorService = null;
-        }
-    }
-
-    private static class DispatchImpl implements Dispatch {
-        private final Serializer serializer;
-        int writeCount;
-
-        public DispatchImpl(Serializer serializer) {
-            this.serializer = serializer;
-            writeCount = 0;
-        }
-
-        @Override
-        public void send(Message message) throws IOException {
-            Message.write(message, serializer);
-            writeCount++;
-            serializer.flush();
         }
     }
 }
