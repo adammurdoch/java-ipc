@@ -41,7 +41,7 @@ public abstract class Agent {
         executorService = Executors.newCachedThreadPool();
     }
 
-    protected void stop() throws Exception {
+    protected void waitForThreads() throws Exception {
         executorService.shutdown();
         if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
             throw new RuntimeException("Timeout waiting for completion.");

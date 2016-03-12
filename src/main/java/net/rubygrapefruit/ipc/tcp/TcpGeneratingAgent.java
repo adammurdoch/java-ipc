@@ -25,7 +25,7 @@ public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
                 startReceiverLoop(serializer, deserializer, receiver);
                 generatorLoop(serializer, generator);
             } catch (IOException e) {
-                throw new RuntimeException("Failure in worker thread.", e);
+                throw new RuntimeException("Failure in generator thread.", e);
             }
         });
     }
@@ -49,7 +49,7 @@ public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
     public void waitForCompletion() throws Exception {
         try {
             serverSocket.close();
-            super.stop();
+            waitForThreads();
             if (clientConnection != null) {
                 clientConnection.close();
             }

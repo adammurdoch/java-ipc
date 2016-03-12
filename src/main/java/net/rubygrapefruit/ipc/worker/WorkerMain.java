@@ -14,7 +14,6 @@ public class WorkerMain {
         System.out.println("* Worker starting connection");
         ReceivingAgent agent = createAgent(transport);
         agent.receiveTo((message, context) -> {
-            System.out.println("* Worker received: " + message.text);
             context.send(new Message("start: " + message.text));
             context.send(new Message("status"));
             context.send(new Message("finished"));

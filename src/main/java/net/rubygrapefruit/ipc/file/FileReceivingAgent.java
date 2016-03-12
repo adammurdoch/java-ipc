@@ -2,7 +2,6 @@ package net.rubygrapefruit.ipc.file;
 
 import net.rubygrapefruit.ipc.message.Receiver;
 import net.rubygrapefruit.ipc.message.ReceivingAgent;
-import net.rubygrapefruit.ipc.message.Serializer;
 import net.rubygrapefruit.ipc.tcp.Agent;
 
 import java.io.File;
@@ -30,19 +29,8 @@ public class FileReceivingAgent extends Agent implements ReceivingAgent {
 
     @Override
     public void start() throws IOException {
-        MemoryMappedFileBackedDeserializer deserializer = new MemoryMappedFileBackedDeserializer(receive);
-        try {
-            receiverLoop(deserializer, new Serializer() {
-                @Override
-                public void writeString(String string) throws IOException {
-                }
-
-                @Override
-                public void flush() throws IOException {
-                }
-            }, receiver);
-        } finally {
-            deserializer.close();
+        try (MemoryMappedFileBackedSerializer serializer = new MemoryMappedFileBackedSerializer(send); MemoryMappedFileBackedDeserializer deserializer = new MemoryMappedFileBackedDeserializer(receive)) {
+            receiverLoop(deserializer, serializer, receiver);
         }
     }
 
