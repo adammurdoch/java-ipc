@@ -24,6 +24,7 @@ public class MemoryMappedFileBackedSerializer implements Serializer, Closeable {
 
     @Override
     public void close() throws IOException {
+        flush();
         backingFile.close();
     }
 

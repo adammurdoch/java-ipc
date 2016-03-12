@@ -67,6 +67,7 @@ public abstract class Agent {
         public void send(Message message) throws IOException {
             Message.write(message, serializer);
             writeCount++;
+            serializer.flush();
         }
     }
 }
