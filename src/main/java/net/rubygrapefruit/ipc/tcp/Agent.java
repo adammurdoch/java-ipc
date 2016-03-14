@@ -48,26 +48,16 @@ public abstract class Agent {
         }
     }
 
-    private static class ReceiveContextImpl implements ReceiveContext {
-        private final Serializer serializer;
-        int writeCount;
+    private static class ReceiveContextImpl extends SerializerBackedDispatch implements ReceiveContext {
         boolean done;
 
         public ReceiveContextImpl(Serializer serializer) {
-            this.serializer = serializer;
-            writeCount = 0;
+            super(serializer);
         }
 
         @Override
         public void done() {
             done = true;
-        }
-
-        @Override
-        public void send(Message message) throws IOException {
-            Message.write(message, serializer);
-            writeCount++;
-            serializer.flush();
         }
     }
 }

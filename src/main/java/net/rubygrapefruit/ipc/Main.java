@@ -28,6 +28,9 @@ public class Main {
                 context.done();
             }
         });
+
+        long start = System.currentTimeMillis();
+
         agent.start();
 
         System.out.println("* Starting worker process");
@@ -38,6 +41,10 @@ public class Main {
 
         System.out.println("* Waiting for generator completion");
         agent.waitForCompletion();
+
+        long end = System.currentTimeMillis();
+
+        System.out.println("* TOTAL TIME: " + (end - start));
     }
 
     private static File getClassPath() throws URISyntaxException {
