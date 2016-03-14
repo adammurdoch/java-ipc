@@ -3,6 +3,7 @@ package net.rubygrapefruit.ipc;
 import net.rubygrapefruit.ipc.agent.GeneratingAgent;
 import net.rubygrapefruit.ipc.file.FileGeneratingAgent;
 import net.rubygrapefruit.ipc.message.Message;
+import net.rubygrapefruit.ipc.tcp.TcpChannelGeneratingAgent;
 import net.rubygrapefruit.ipc.tcp.TcpGeneratingAgent;
 import net.rubygrapefruit.ipc.worker.WorkerMain;
 
@@ -69,6 +70,8 @@ public class Main {
         switch (transport) {
             case Tcp:
                 return new TcpGeneratingAgent();
+            case TcpChannel:
+                return new TcpChannelGeneratingAgent();
             case File:
                 return new FileGeneratingAgent();
             default:

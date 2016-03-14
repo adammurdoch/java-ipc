@@ -1,38 +1,21 @@
 package net.rubygrapefruit.ipc.tcp;
 
-import net.rubygrapefruit.ipc.agent.AbstractReceivingAgent;
 import net.rubygrapefruit.ipc.message.Deserializer;
 import net.rubygrapefruit.ipc.message.InputStreamBackedDeserializer;
 import net.rubygrapefruit.ipc.message.OutputStreamBackedSerializer;
 import net.rubygrapefruit.ipc.message.Serializer;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
-public class TcpReceivingAgent extends AbstractReceivingAgent {
-    private int port;
-    private Socket socket;
-
+public class TcpReceivingAgent extends AbstractTcpReceivingAgent {
     @Override
-    public void setConfig(String config) {
-        port = Integer.valueOf(config);
+    protected Deserializer createDeserializer(Socket connection) throws IOException {
+        return new InputStreamBackedDeserializer(connection.getInputStream());
     }
 
     @Override
-    public void start() throws IOException {
-        socket = new Socket(InetAddress.getLoopbackAddress(), port);
-    }
-
-    @Override
-    public void waitForCompletion() throws IOException {
-        Deserializer deserializer = new InputStreamBackedDeserializer(socket.getInputStream());
-        Serializer serializer = new OutputStreamBackedSerializer(socket.getOutputStream());
-        receiverLoop(deserializer, serializer, receiver);
-        try {
-            socket.close();
-        } finally {
-            socket = null;
-        }
+    protected Serializer createSerializer(Socket connection) throws IOException {
+        return new OutputStreamBackedSerializer(connection.getOutputStream());
     }
 }

@@ -4,6 +4,7 @@ import net.rubygrapefruit.ipc.Transport;
 import net.rubygrapefruit.ipc.agent.ReceivingAgent;
 import net.rubygrapefruit.ipc.file.FileReceivingAgent;
 import net.rubygrapefruit.ipc.message.Message;
+import net.rubygrapefruit.ipc.tcp.TcpChannelReceivingAgent;
 import net.rubygrapefruit.ipc.tcp.TcpReceivingAgent;
 
 public class WorkerMain {
@@ -38,6 +39,8 @@ public class WorkerMain {
         switch (transport) {
             case Tcp:
                 return new TcpReceivingAgent();
+            case TcpChannel:
+                return new TcpChannelReceivingAgent();
             case File:
                 return new FileReceivingAgent();
             default:
