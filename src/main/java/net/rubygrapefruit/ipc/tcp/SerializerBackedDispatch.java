@@ -19,6 +19,5 @@ public class SerializerBackedDispatch implements Dispatch {
     public void send(Message message) throws IOException {
         Message.write(message, serializer);
         writeCount++;
-        serializer.flush();
     }
 }
