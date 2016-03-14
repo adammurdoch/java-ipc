@@ -1,7 +1,7 @@
 package net.rubygrapefruit.ipc;
 
+import net.rubygrapefruit.ipc.agent.GeneratingAgent;
 import net.rubygrapefruit.ipc.file.FileGeneratingAgent;
-import net.rubygrapefruit.ipc.message.GeneratingAgent;
 import net.rubygrapefruit.ipc.message.Message;
 import net.rubygrapefruit.ipc.tcp.TcpGeneratingAgent;
 import net.rubygrapefruit.ipc.worker.WorkerMain;

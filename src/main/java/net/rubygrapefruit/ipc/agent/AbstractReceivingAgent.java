@@ -1,7 +1,6 @@
-package net.rubygrapefruit.ipc.tcp;
+package net.rubygrapefruit.ipc.agent;
 
 import net.rubygrapefruit.ipc.message.Receiver;
-import net.rubygrapefruit.ipc.message.ReceivingAgent;
 
 public abstract class AbstractReceivingAgent extends AbstractAgent implements ReceivingAgent {
     protected Receiver receiver;

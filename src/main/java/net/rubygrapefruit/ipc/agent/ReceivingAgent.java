@@ -1,4 +1,6 @@
-package net.rubygrapefruit.ipc.message;
+package net.rubygrapefruit.ipc.agent;
+
+import net.rubygrapefruit.ipc.message.Receiver;
 
 import java.io.IOException;
 

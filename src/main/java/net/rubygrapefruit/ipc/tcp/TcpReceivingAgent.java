@@ -1,5 +1,6 @@
 package net.rubygrapefruit.ipc.tcp;
 
+import net.rubygrapefruit.ipc.agent.AbstractReceivingAgent;
 import net.rubygrapefruit.ipc.message.Deserializer;
 import net.rubygrapefruit.ipc.message.InputStreamBackedDeserializer;
 import net.rubygrapefruit.ipc.message.OutputStreamBackedSerializer;

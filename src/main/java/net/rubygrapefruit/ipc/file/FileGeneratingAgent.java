@@ -1,6 +1,6 @@
 package net.rubygrapefruit.ipc.file;
 
-import net.rubygrapefruit.ipc.tcp.AbstractGeneratingAgent;
+import net.rubygrapefruit.ipc.agent.AbstractGeneratingAgent;
 
 import java.io.File;
 import java.io.IOException;

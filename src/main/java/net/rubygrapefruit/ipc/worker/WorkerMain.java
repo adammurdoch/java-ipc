@@ -1,9 +1,9 @@
 package net.rubygrapefruit.ipc.worker;
 
 import net.rubygrapefruit.ipc.Transport;
+import net.rubygrapefruit.ipc.agent.ReceivingAgent;
 import net.rubygrapefruit.ipc.file.FileReceivingAgent;
 import net.rubygrapefruit.ipc.message.Message;
-import net.rubygrapefruit.ipc.message.ReceivingAgent;
 import net.rubygrapefruit.ipc.tcp.TcpReceivingAgent;
 
 public class WorkerMain {

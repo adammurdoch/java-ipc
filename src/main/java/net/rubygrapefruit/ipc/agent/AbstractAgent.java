@@ -1,4 +1,4 @@
-package net.rubygrapefruit.ipc.tcp;
+package net.rubygrapefruit.ipc.agent;
 
 import net.rubygrapefruit.ipc.message.*;
 
