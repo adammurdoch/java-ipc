@@ -1,24 +1,21 @@
 package net.rubygrapefruit.ipc.tcp;
 
-import net.rubygrapefruit.ipc.message.*;
+import net.rubygrapefruit.ipc.message.Deserializer;
+import net.rubygrapefruit.ipc.message.InputStreamBackedDeserializer;
+import net.rubygrapefruit.ipc.message.OutputStreamBackedSerializer;
+import net.rubygrapefruit.ipc.message.Serializer;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class TcpReceivingAgent extends Agent implements ReceivingAgent {
+public class TcpReceivingAgent extends AbstractReceivingAgent {
     private int port;
     private Socket socket;
-    private Receiver receiver;
 
     @Override
     public void setConfig(String config) {
         port = Integer.valueOf(config);
-    }
-
-    @Override
-    public void receiveTo(Receiver receiver) {
-        this.receiver = receiver;
     }
 
     @Override

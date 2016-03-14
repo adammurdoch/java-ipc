@@ -1,22 +1,14 @@
 package net.rubygrapefruit.ipc.file;
 
-import net.rubygrapefruit.ipc.message.Receiver;
-import net.rubygrapefruit.ipc.message.ReceivingAgent;
-import net.rubygrapefruit.ipc.tcp.Agent;
+import net.rubygrapefruit.ipc.tcp.AbstractReceivingAgent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-public class FileReceivingAgent extends Agent implements ReceivingAgent {
-    private Receiver receiver;
+public class FileReceivingAgent extends AbstractReceivingAgent {
     private File send;
     private File receive;
-
-    @Override
-    public void receiveTo(Receiver receiver) {
-        this.receiver = receiver;
-    }
 
     @Override
     public void setConfig(String config) {
@@ -36,6 +28,5 @@ public class FileReceivingAgent extends Agent implements ReceivingAgent {
 
     @Override
     public void waitForCompletion() throws IOException {
-
     }
 }

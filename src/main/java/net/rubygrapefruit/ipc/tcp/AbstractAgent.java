@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public abstract class Agent {
+public abstract class AbstractAgent {
     protected ExecutorService executorService;
 
     protected void startReceiverLoop(Serializer serializer, Deserializer deserializer, Receiver receiver) {
@@ -39,7 +39,7 @@ public abstract class Agent {
         System.out.println("* Generated " + dispatch.writeCount + " messages.");
     }
 
-    protected void start() throws IOException {
+    public void start() throws IOException {
         executorService = Executors.newCachedThreadPool();
     }
 
