@@ -1,6 +1,10 @@
 package net.rubygrapefruit.ipc;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import net.rubygrapefruit.ipc.agent.FlushStrategy;
 import net.rubygrapefruit.ipc.agent.GeneratingAgent;
+import net.rubygrapefruit.ipc.agent.Throughput;
 import net.rubygrapefruit.ipc.file.FileGeneratingAgent;
 import net.rubygrapefruit.ipc.message.Message;
 import net.rubygrapefruit.ipc.tcp.TcpChannelGeneratingAgent;
@@ -13,18 +17,25 @@ import java.net.URL;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        Transport transport = toTransport(args[0]);
-        boolean slow = (args.length > 1 && args[1].equals("--slow"));
+        OptionParser optionParser = new OptionParser();
+        optionParser.accepts("transport").withRequiredArg().required();
+        optionParser.accepts("slow");
+        optionParser.accepts("flush");
+        OptionSet optionSet = optionParser.parse(args);
+        Transport transport = toTransport(optionSet.valueOf("transport").toString());
+        Throughput throughput = optionSet.has("slow") ? Throughput.Slow : Throughput.Fast;
+        FlushStrategy flush = optionSet.has("flush") ? FlushStrategy.EachMessage : FlushStrategy.EndStream;
 
         System.out.println("* Transport: " + transport);
-        System.out.println("* Slow: " + slow);
+        System.out.println("* Throughput: " + throughput);
+        System.out.println("* Flush: " + flush);
 
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 50000; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
-                if (slow) {
+                if (throughput == Throughput.Slow) {
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {
@@ -47,7 +58,7 @@ public class Main {
         System.out.println("* Starting worker process");
         File classPath = getClassPath();
         ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("java.home") + "/bin/java", "-cp",
-                classPath.getAbsolutePath(), WorkerMain.class.getName(), transport.name(), String.valueOf(slow), agent.getConfig());
+                classPath.getAbsolutePath(), WorkerMain.class.getName(), transport.name(), throughput.name(), flush.name(), agent.getConfig());
         processBuilder.inheritIO().start().waitFor();
 
         System.out.println("* Waiting for generator completion");

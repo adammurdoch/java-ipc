@@ -12,4 +12,5 @@ mainClassName = 'net.rubygrapefruit.ipc.Main'
 
 dependencies {
     testCompile 'junit:junit:4.12'
+    compile 'net.sf.jopt-simple:jopt-simple:5.0'
 }
