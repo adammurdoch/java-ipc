@@ -10,7 +10,7 @@ public class ChannelBackedSerializer implements Serializer {
 
     public ChannelBackedSerializer(ByteChannel channel) {
         this.channel = channel;
-        buffer = ByteBuffer.allocateDirect(4096);
+        buffer = ByteBuffer.allocateDirect(1024);
     }
 
     @Override
