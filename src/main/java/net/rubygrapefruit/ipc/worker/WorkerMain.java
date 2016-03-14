@@ -9,11 +9,16 @@ import net.rubygrapefruit.ipc.tcp.TcpReceivingAgent;
 public class WorkerMain {
     public static void main(String[] args) throws Exception {
         Transport transport = Transport.valueOf(args[0]);
+        boolean slow = args[1].equals("true");
         System.out.println("* Worker transport: " + transport);
+        System.out.println("* Worker slow: " + slow);
 
         System.out.println("* Worker starting connection");
         ReceivingAgent agent = createAgent(transport);
         agent.receiveTo((message, context) -> {
+            if (slow) {
+                System.out.println("* Worker received: " + message.text);
+            }
             context.send(new Message("start: " + message.text));
             context.send(new Message("status"));
             context.send(new Message("finished"));
@@ -22,7 +27,7 @@ public class WorkerMain {
                 context.done();
             }
         });
-        agent.setConfig(args[1]);
+        agent.setConfig(args[2]);
         agent.start();
         System.out.println("* Worker waiting for receiver to complete");
         agent.waitForCompletion();

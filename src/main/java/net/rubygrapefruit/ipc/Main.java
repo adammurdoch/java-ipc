@@ -13,13 +13,23 @@ import java.net.URL;
 public class Main {
     public static void main(String[] args) throws Exception {
         Transport transport = toTransport(args[0]);
+        boolean slow = (args.length > 1 && args[1].equals("--slow"));
+
         System.out.println("* Transport: " + transport);
+        System.out.println("* Slow: " + slow);
 
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
-            for (int i = 0; i < 20000; i++) {
+            for (int i = 0; i < 10; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
+                if (slow) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
             dispatch.send(new Message("done"));
         });
@@ -36,7 +46,7 @@ public class Main {
         System.out.println("* Starting worker process");
         File classPath = getClassPath();
         ProcessBuilder processBuilder = new ProcessBuilder(System.getProperty("java.home") + "/bin/java", "-cp",
-                classPath.getAbsolutePath(), WorkerMain.class.getName(), transport.name(), agent.getConfig());
+                classPath.getAbsolutePath(), WorkerMain.class.getName(), transport.name(), String.valueOf(slow), agent.getConfig());
         processBuilder.inheritIO().start().waitFor();
 
         System.out.println("* Waiting for generator completion");
