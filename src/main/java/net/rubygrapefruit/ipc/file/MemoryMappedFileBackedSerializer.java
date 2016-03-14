@@ -11,7 +11,7 @@ import java.nio.channels.FileChannel;
 
 public class MemoryMappedFileBackedSerializer implements Serializer, Closeable {
     private static final int SIZE_INCREMENT = 4096;
-    private final MappedByteBuffer sendBuffer;
+    private MappedByteBuffer sendBuffer;
     private final RandomAccessFile backingFile;
     private int writePos;
 
@@ -28,11 +28,22 @@ public class MemoryMappedFileBackedSerializer implements Serializer, Closeable {
         backingFile.close();
     }
 
+    private void ensure(int count) throws IOException {
+        int requiredLimit = writePos + count;
+        if (requiredLimit <= sendBuffer.capacity()) {
+            return;
+        }
+        long newSize = ((requiredLimit / SIZE_INCREMENT) + 1) * SIZE_INCREMENT;
+        sendBuffer = backingFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, newSize);
+    }
+
     @Override
     public void writeString(String string) throws IOException {
         byte[] bytes = string.getBytes();
+        ensure(4);
         sendBuffer.putInt(writePos, bytes.length);
         writePos += 4;
+        ensure(bytes.length);
         sendBuffer.position(writePos);
         sendBuffer.put(bytes);
         writePos += bytes.length;

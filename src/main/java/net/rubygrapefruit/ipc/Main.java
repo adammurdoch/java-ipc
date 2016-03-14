@@ -18,7 +18,7 @@ public class Main {
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 20000; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
             }
             dispatch.send(new Message("done"));

@@ -10,14 +10,15 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 public class MemoryMappedFileBackedDeserializer implements Deserializer, Closeable {
-    private final MappedByteBuffer receiveBuffer;
     private final RandomAccessFile backingFile;
+    private final File file;
+    private MappedByteBuffer receiveBuffer;
     private int maxReadPos;
     private int readPos;
 
     public MemoryMappedFileBackedDeserializer(File file) throws IOException {
+        this.file = file;
         backingFile = new RandomAccessFile(file, "r");
-        receiveBuffer = backingFile.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, 4096);
         maxReadPos = 0;
         readPos = 4;
     }
@@ -27,13 +28,26 @@ public class MemoryMappedFileBackedDeserializer implements Deserializer, Closeab
         backingFile.close();
     }
 
-    private void ensure(int length) {
-        int requiredLimit = readPos + length;
-        if (requiredLimit <= maxReadPos) {
+    private void ensure(int count) throws IOException {
+        int requiredSize = readPos + count;
+        if (requiredSize <= maxReadPos) {
             return;
         }
-        while ((maxReadPos = receiveBuffer.getInt(0)) < requiredLimit) {
-            ;
+        if (receiveBuffer == null) {
+            // Wait for enough content in file
+            long newSize;
+            while ((newSize = backingFile.length()) < requiredSize) {
+                Thread.yield();
+            }
+            receiveBuffer = backingFile.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, newSize);
+        }
+        while ((maxReadPos = receiveBuffer.getInt(0)) < requiredSize) {
+            Thread.yield();
+        }
+        if (maxReadPos > receiveBuffer.capacity()) {
+            // File has grown since buffer mapped
+            long newSize = backingFile.length();
+            receiveBuffer = backingFile.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, newSize);
         }
     }
 
@@ -44,7 +58,7 @@ public class MemoryMappedFileBackedDeserializer implements Deserializer, Closeab
         return new String(bytes);
     }
 
-    private byte[] readBytes(int length) {
+    private byte[] readBytes(int length) throws IOException {
         ensure(length);
         byte[] result = new byte[length];
         receiveBuffer.position(readPos);
@@ -53,7 +67,7 @@ public class MemoryMappedFileBackedDeserializer implements Deserializer, Closeab
         return result;
     }
 
-    private int readInteger() {
+    private int readInteger() throws IOException {
         ensure(4);
         int result = receiveBuffer.getInt(readPos);
         readPos += 4;
