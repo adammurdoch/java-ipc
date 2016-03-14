@@ -48,7 +48,7 @@ public class FileGeneratingAgent extends Agent implements GeneratingAgent {
         executorService.execute(() -> {
             try {
                 try (MemoryMappedFileBackedDeserializer deserializer = new MemoryMappedFileBackedDeserializer(receive)) {
-                    receiverLoop(deserializer, null, receiver);
+                    receiverLoop(deserializer, noSend(), receiver);
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Failure in receiver thread.", e);

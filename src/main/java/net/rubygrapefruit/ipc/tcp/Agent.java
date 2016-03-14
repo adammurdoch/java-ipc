@@ -28,12 +28,14 @@ public abstract class Agent {
             readCound++;
             receiver.receive(message, context);
         }
+        serializer.flush();
         System.out.println("* Receiver handled " + readCound + " messages, sent " + context.writeCount + " messages.");
     }
 
     protected void generatorLoop(Serializer serializer, Generator generator) throws IOException {
         SerializerBackedDispatch dispatch = new SerializerBackedDispatch(serializer);
         generator.generate(dispatch);
+        serializer.flush();
         System.out.println("* Generated " + dispatch.writeCount + " messages.");
     }
 
@@ -46,6 +48,19 @@ public abstract class Agent {
         if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
             throw new RuntimeException("Timeout waiting for completion.");
         }
+    }
+
+    protected Serializer noSend() {
+        return new Serializer() {
+            @Override
+            public void writeString(String string) throws IOException {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void flush() throws IOException {
+            }
+        };
     }
 
     private static class ReceiveContextImpl extends SerializerBackedDispatch implements ReceiveContext {

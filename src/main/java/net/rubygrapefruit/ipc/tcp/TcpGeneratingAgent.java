@@ -22,7 +22,7 @@ public class TcpGeneratingAgent extends Agent implements GeneratingAgent {
                 System.out.println("* Connected");
                 Serializer serializer = new OutputStreamBackedSerializer(clientConnection.getOutputStream());
                 Deserializer deserializer = new InputStreamBackedDeserializer(clientConnection.getInputStream());
-                startReceiverLoop(serializer, deserializer, receiver);
+                startReceiverLoop(noSend(), deserializer, receiver);
                 generatorLoop(serializer, generator);
             } catch (IOException e) {
                 throw new RuntimeException("Failure in generator thread.", e);
