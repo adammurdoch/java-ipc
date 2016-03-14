@@ -1,6 +1,7 @@
 package net.rubygrapefruit.ipc.file;
 
 import net.rubygrapefruit.ipc.agent.AbstractReceivingAgent;
+import net.rubygrapefruit.ipc.agent.FlushStrategy;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,8 @@ public class FileReceivingAgent extends AbstractReceivingAgent {
     private File receive;
 
     @Override
-    public void setConfig(String config) {
+    public void setConfig(String config, FlushStrategy flushStrategy) {
+        setFlushStrategy(flushStrategy);
         String[] paths = config.split(Pattern.quote(File.pathSeparator));
         send = new File(paths[0]);
         receive = new File(paths[1]);

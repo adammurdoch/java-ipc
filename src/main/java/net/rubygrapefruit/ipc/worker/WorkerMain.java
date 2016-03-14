@@ -34,7 +34,7 @@ public class WorkerMain {
                 context.done();
             }
         });
-        agent.setConfig(args[3]);
+        agent.setConfig(args[3], flush);
         agent.start();
         System.out.println("* Worker waiting for receiver to complete");
         agent.waitForCompletion();

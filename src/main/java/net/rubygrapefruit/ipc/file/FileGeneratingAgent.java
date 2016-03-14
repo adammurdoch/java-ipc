@@ -1,6 +1,7 @@
 package net.rubygrapefruit.ipc.file;
 
 import net.rubygrapefruit.ipc.agent.AbstractGeneratingAgent;
+import net.rubygrapefruit.ipc.agent.FlushStrategy;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +11,8 @@ public class FileGeneratingAgent extends AbstractGeneratingAgent {
     private File receive;
 
     @Override
-    public void start() throws IOException {
-        super.start();
+    public void start(FlushStrategy flushStrategy) throws IOException {
+        setFlushStrategy(flushStrategy);
 
         send = File.createTempFile("to-worker", ".bin");
         send.deleteOnExit();

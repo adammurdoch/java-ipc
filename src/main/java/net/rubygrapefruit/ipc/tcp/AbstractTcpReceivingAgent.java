@@ -1,6 +1,7 @@
 package net.rubygrapefruit.ipc.tcp;
 
 import net.rubygrapefruit.ipc.agent.AbstractReceivingAgent;
+import net.rubygrapefruit.ipc.agent.FlushStrategy;
 import net.rubygrapefruit.ipc.message.Deserializer;
 import net.rubygrapefruit.ipc.message.Serializer;
 
@@ -11,7 +12,8 @@ public abstract class AbstractTcpReceivingAgent extends AbstractReceivingAgent {
     private Connection connection;
 
     @Override
-    public void setConfig(String config) {
+    public void setConfig(String config, FlushStrategy flushStrategy) {
+        setFlushStrategy(flushStrategy);
         port = Integer.valueOf(config);
     }
 

@@ -6,7 +6,7 @@ import net.rubygrapefruit.ipc.message.Receiver;
 import java.io.IOException;
 
 public interface GeneratingAgent {
-    void start() throws IOException;
+    void start(FlushStrategy flushStrategy) throws IOException;
 
     String getConfig() throws IOException;
 

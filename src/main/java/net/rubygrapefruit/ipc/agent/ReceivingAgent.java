@@ -5,7 +5,7 @@ import net.rubygrapefruit.ipc.message.Receiver;
 import java.io.IOException;
 
 public interface ReceivingAgent {
-    void setConfig(String config);
+    void setConfig(String config, FlushStrategy flushStrategy);
 
     void receiveTo(Receiver receiver);
 

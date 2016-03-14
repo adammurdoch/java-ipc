@@ -53,7 +53,7 @@ public class Main {
 
         long start = System.currentTimeMillis();
 
-        agent.start();
+        agent.start(flush);
 
         System.out.println("* Starting worker process");
         File classPath = getClassPath();

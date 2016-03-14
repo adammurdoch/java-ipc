@@ -1,6 +1,7 @@
 package net.rubygrapefruit.ipc.tcp;
 
 import net.rubygrapefruit.ipc.agent.AbstractGeneratingAgent;
+import net.rubygrapefruit.ipc.agent.FlushStrategy;
 import net.rubygrapefruit.ipc.message.Deserializer;
 import net.rubygrapefruit.ipc.message.Serializer;
 
@@ -11,8 +12,8 @@ public abstract class AbstractTcpGeneratingAgent extends AbstractGeneratingAgent
     private Connection clientConnection;
 
     @Override
-    public void start() throws IOException {
-        super.start();
+    public void start(FlushStrategy flushStrategy) throws IOException {
+        setFlushStrategy(flushStrategy);
         incomingConnection = createIncomingConnection();
         executorService.execute(() -> {
             try {
@@ -45,7 +46,6 @@ public abstract class AbstractTcpGeneratingAgent extends AbstractGeneratingAgent
             }
         } finally {
             incomingConnection = null;
-            executorService = null;
         }
     }
 }
