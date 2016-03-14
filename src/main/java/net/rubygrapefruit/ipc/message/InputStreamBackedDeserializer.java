@@ -13,6 +13,9 @@ public class InputStreamBackedDeserializer implements Deserializer {
 
     @Override
     public String readString() throws IOException {
-        return inputStream.readUTF();
+        int length = inputStream.readInt();
+        byte[] bytes = new byte[length];
+        inputStream.readFully(bytes);
+        return new String(bytes);
     }
 }

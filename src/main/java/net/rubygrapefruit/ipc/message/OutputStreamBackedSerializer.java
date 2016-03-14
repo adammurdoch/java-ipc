@@ -18,6 +18,8 @@ public class OutputStreamBackedSerializer implements Serializer {
 
     @Override
     public void writeString(String string) throws IOException {
-        outputStream.writeUTF(string);
+        byte[] bytes = string.getBytes();
+        outputStream.writeInt(bytes.length);
+        outputStream.write(bytes);
     }
 }

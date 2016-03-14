@@ -33,7 +33,8 @@ public class Main {
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
-            for (int i = 0; i < 50000; i++) {
+            int messageCount = throughput == Throughput.Fast ? 50000 : 5;
+            for (int i = 0; i < messageCount; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
                 if (throughput == Throughput.Slow) {
                     try {
@@ -80,7 +81,9 @@ public class Main {
     private static GeneratingAgent createAgent(Transport transport) {
         switch (transport) {
             case Tcp:
-                return new TcpGeneratingAgent();
+                return new TcpGeneratingAgent(false);
+            case TcpBuffered:
+                return new TcpGeneratingAgent(true);
             case TcpChannel:
                 return new TcpChannelGeneratingAgent();
             case File:

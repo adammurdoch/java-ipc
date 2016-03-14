@@ -44,7 +44,9 @@ public class WorkerMain {
     private static ReceivingAgent createAgent(Transport transport) {
         switch (transport) {
             case Tcp:
-                return new TcpReceivingAgent();
+                return new TcpReceivingAgent(false);
+            case TcpBuffered:
+                return new TcpReceivingAgent(true);
             case TcpChannel:
                 return new TcpChannelReceivingAgent();
             case File:

@@ -5,8 +5,10 @@ import java.net.ServerSocket;
 
 public class TcpStreamIncomingConnection implements IncomingConnection {
     private final ServerSocket serverSocket;
+    private final boolean buffered;
 
-    public TcpStreamIncomingConnection() throws IOException {
+    public TcpStreamIncomingConnection(boolean buffered) throws IOException {
+        this.buffered = buffered;
         serverSocket = new ServerSocket(0);
     }
 
@@ -17,7 +19,7 @@ public class TcpStreamIncomingConnection implements IncomingConnection {
 
     @Override
     public Connection accept() throws IOException {
-        return new TcpStreamConnection(serverSocket.accept());
+        return new TcpStreamConnection(serverSocket.accept(), buffered);
     }
 
     @Override
