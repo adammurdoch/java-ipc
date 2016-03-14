@@ -22,7 +22,7 @@ public class Main {
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(dispatch -> {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 5; i++) {
                 dispatch.send(new Message(String.valueOf(i)));
                 if (slow) {
                     try {

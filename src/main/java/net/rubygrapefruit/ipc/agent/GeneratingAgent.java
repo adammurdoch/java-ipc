@@ -8,7 +8,7 @@ import java.io.IOException;
 public interface GeneratingAgent {
     void start() throws IOException;
 
-    String getConfig();
+    String getConfig() throws IOException;
 
     void generateFrom(Generator generator);
 

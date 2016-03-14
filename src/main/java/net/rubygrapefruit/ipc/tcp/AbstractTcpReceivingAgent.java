@@ -5,12 +5,10 @@ import net.rubygrapefruit.ipc.message.Deserializer;
 import net.rubygrapefruit.ipc.message.Serializer;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
 
 public abstract class AbstractTcpReceivingAgent extends AbstractReceivingAgent {
     private int port;
-    private Socket socket;
+    private Connection connection;
 
     @Override
     public void setConfig(String config) {
@@ -19,23 +17,20 @@ public abstract class AbstractTcpReceivingAgent extends AbstractReceivingAgent {
 
     @Override
     public void start() throws IOException {
-        socket = new Socket(InetAddress.getLoopbackAddress(), port);
+        connection = createConnection(port);
     }
 
-    protected abstract Serializer createSerializer(Socket connection) throws IOException;
-
-    protected abstract Deserializer createDeserializer(Socket connection) throws IOException;
-
+    protected abstract Connection createConnection(int port) throws IOException;
 
     @Override
     public void waitForCompletion() throws IOException {
-        Deserializer deserializer = createDeserializer(socket);
-        Serializer serializer = createSerializer(socket);
+        Deserializer deserializer = connection.getReceive();
+        Serializer serializer = connection.getSend();
         receiverLoop(deserializer, serializer, receiver);
         try {
-            socket.close();
+            connection.close();
         } finally {
-            socket = null;
+            connection = null;
         }
     }
 }

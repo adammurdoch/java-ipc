@@ -5,23 +5,21 @@ import net.rubygrapefruit.ipc.message.Deserializer;
 import net.rubygrapefruit.ipc.message.Serializer;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public abstract class AbstractTcpGeneratingAgent extends AbstractGeneratingAgent {
-    private ServerSocket serverSocket;
-    private Socket clientConnection;
+    private IncomingConnection incomingConnection;
+    private Connection clientConnection;
 
     @Override
     public void start() throws IOException {
         super.start();
-        serverSocket = new ServerSocket(0);
+        incomingConnection = createIncomingConnection();
         executorService.execute(() -> {
             try {
-                clientConnection = serverSocket.accept();
+                clientConnection = incomingConnection.accept();
                 System.out.println("* Connected");
-                Serializer serializer = createSerializer(clientConnection);
-                Deserializer deserializer = createDeserializer(clientConnection);
+                Serializer serializer = clientConnection.getSend();
+                Deserializer deserializer = clientConnection.getReceive();
                 startReceiverLoop(noSend(), deserializer, receiver);
                 generatorLoop(serializer, generator);
             } catch (IOException e) {
@@ -30,25 +28,23 @@ public abstract class AbstractTcpGeneratingAgent extends AbstractGeneratingAgent
         });
     }
 
-    protected abstract Serializer createSerializer(Socket connection) throws IOException;
-
-    protected abstract Deserializer createDeserializer(Socket connection) throws IOException;
+    protected abstract IncomingConnection createIncomingConnection() throws IOException;
 
     @Override
-    public String getConfig() {
-        return String.valueOf(serverSocket.getLocalPort());
+    public String getConfig() throws IOException {
+        return String.valueOf(incomingConnection.getPort());
     }
 
     @Override
     public void waitForCompletion() throws Exception {
         try {
-            serverSocket.close();
+            incomingConnection.close();
             waitForThreads();
             if (clientConnection != null) {
                 clientConnection.close();
             }
         } finally {
-            serverSocket = null;
+            incomingConnection = null;
             executorService = null;
         }
     }

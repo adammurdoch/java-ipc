@@ -15,11 +15,44 @@ public class ChannelBackedSerializer implements Serializer {
 
     @Override
     public void writeString(String string) throws IOException {
-        throw new UnsupportedOperationException();
+        byte[] bytes = string.getBytes();
+        writeInt(bytes.length);
+        writeBytes(bytes);
+    }
+
+    private void writeBytes(byte[] bytes) throws IOException {
+        int pos = 0;
+        while (pos < bytes.length) {
+            if (buffer.remaining() == 0) {
+                writeToChannel();
+            }
+            int count = Math.min(bytes.length - pos, buffer.remaining());
+            buffer.put(bytes, pos, count);
+            pos += count;
+        }
+    }
+
+    private void writeInt(int value) throws IOException {
+        ensure(4);
+        buffer.putInt(value);
+    }
+
+    private void ensure(int count) throws IOException {
+        if (buffer.remaining() < count) {
+            writeToChannel();
+        }
+    }
+
+    private void writeToChannel() throws IOException {
+        buffer.flip();
+        while (buffer.hasRemaining()) {
+            channel.write(buffer);
+        }
+        buffer.clear();
     }
 
     @Override
     public void flush() throws IOException {
-        throw new UnsupportedOperationException();
+        writeToChannel();
     }
 }
