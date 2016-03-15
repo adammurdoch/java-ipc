@@ -22,21 +22,33 @@ public class Main {
         optionParser.accepts("transport").withRequiredArg().required();
         optionParser.accepts("slow");
         optionParser.accepts("flush");
+        optionParser.accepts("measure");
         OptionSet optionSet = optionParser.parse(args);
         Transport transport = toTransport(optionSet.valueOf("transport").toString());
         final Throughput throughput = optionSet.has("slow") ? Throughput.Slow : Throughput.Fast;
         FlushStrategy flush = optionSet.has("flush") ? FlushStrategy.EachMessage : FlushStrategy.EndStream;
+        boolean measure = optionSet.has("measure");
 
         System.out.println("* Transport: " + transport);
         System.out.println("* Throughput: " + throughput);
         System.out.println("* Flush: " + flush);
 
+        long total = 0;
+        int iterations = measure ? 10 : 1;
+        for (int i = 0; i < iterations; i++) {
+            total += runOnce(transport, throughput, flush);
+        }
+        System.out.println("* Average: " + (total/iterations));
+    }
+
+    private static long runOnce(Transport transport, final Throughput throughput, FlushStrategy flush)
+            throws Exception {
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
         agent.generateFrom(new Generator() {
             @Override
             public void generate(Dispatch dispatch) throws IOException {
-                int messageCount = throughput == Throughput.Fast ? 100000 : 10;
+                int messageCount = throughput == Throughput.Fast ? 1000000 : 10;
                 for (int i = 0; i < messageCount; i++) {
                     dispatch.send(new Message(String.valueOf(i)));
                     if (throughput == Throughput.Slow) {
@@ -72,7 +84,9 @@ public class Main {
 
         long end = System.currentTimeMillis();
 
-        System.out.println("* TOTAL TIME: " + (end - start));
+        long time = end - start;
+        System.out.println("* Execution time: " + time);
+        return time;
     }
 
     private static File getClassPath() throws URISyntaxException {
