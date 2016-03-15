@@ -25,26 +25,38 @@ public class FileGeneratingAgent extends AbstractGeneratingAgent {
         receive.deleteOnExit();
         System.out.println("send on: " + send);
         System.out.println("receive on: " + receive);
-        executorService.execute(() -> {
-            try {
-                try (MappedByteBufferBackedSerializer serializer = unsafe
-                        ? new UnsafeMemoryMappedFileBackedSerializer(send)
-                        : new MemoryMappedFileBackedSerializer(send)) {
-                    generatorLoop(serializer, generator);
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MappedByteBufferBackedSerializer serializer = unsafe
+                            ? new UnsafeMemoryMappedFileBackedSerializer(send)
+                            : new MemoryMappedFileBackedSerializer(send);
+                    try {
+                        generatorLoop(serializer, generator);
+                    } finally {
+                        serializer.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Failure in generator thread.", e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Failure in generator thread.", e);
             }
         });
-        executorService.execute(() -> {
-            try {
-                try (MappedByteBufferBackedDeserializer deserializer = unsafe
-                        ? new UnsafeMemoryMappedFileBackedDeserializer(receive)
-                        : new MemoryMappedFileBackedDeserializer(receive)) {
-                    receiverLoop(deserializer, noSend(), receiver);
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MappedByteBufferBackedDeserializer deserializer = unsafe
+                            ? new UnsafeMemoryMappedFileBackedDeserializer(receive)
+                            : new MemoryMappedFileBackedDeserializer(receive);
+                    try {
+                        receiverLoop(deserializer, noSend(), receiver);
+                    } finally {
+                        deserializer.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Failure in receiver thread.", e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("Failure in receiver thread.", e);
             }
         });
     }

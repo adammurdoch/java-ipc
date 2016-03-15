@@ -15,18 +15,20 @@ public abstract class AbstractTcpGeneratingAgent extends AbstractGeneratingAgent
     public void start(FlushStrategy flushStrategy) throws IOException {
         setFlushStrategy(flushStrategy);
         incomingConnection = createIncomingConnection();
-        executorService.execute(() -> {
-            try {
-                clientConnection = incomingConnection.accept();
-                System.out.println("* Connected");
-                Serializer serializer = clientConnection.getSend();
-                Deserializer deserializer = clientConnection.getReceive();
-                startReceiverLoop(noSend(), deserializer, receiver);
-                generatorLoop(serializer, generator);
-            } catch (IOException e) {
-                throw new RuntimeException("Failure in generator thread.", e);
-            }
-        });
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    clientConnection = incomingConnection.accept();
+                    System.out.println("* Connected");
+                    Serializer serializer = clientConnection.getSend();
+                    Deserializer deserializer = clientConnection.getReceive();
+                    startReceiverLoop(noSend(), deserializer, receiver);
+                    generatorLoop(serializer, generator);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failure in generator thread.", e);
+                }
+            }});
     }
 
     protected abstract IncomingConnection createIncomingConnection() throws IOException;

@@ -15,17 +15,22 @@ public abstract class AbstractAgent {
         executorService = Executors.newCachedThreadPool();
     }
 
-    protected void startReceiverLoop(Serializer serializer, Deserializer deserializer, Receiver receiver) {
-        executorService.execute(() -> {
-            try {
-                receiverLoop(deserializer, serializer, receiver);
-            } catch (IOException e) {
-                throw new RuntimeException("Failure in worker thread.", e);
+    protected void startReceiverLoop(final Serializer serializer, final Deserializer deserializer,
+                                     final Receiver receiver) {
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    receiverLoop(deserializer, serializer, receiver);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failure in worker thread.", e);
+                }
             }
         });
     }
 
-    protected void receiverLoop(Deserializer deserializer, Serializer serializer, Receiver receiver) throws IOException {
+    protected void receiverLoop(Deserializer deserializer, Serializer serializer, Receiver receiver)
+            throws IOException {
         int readCound = 0;
         ReceiveContextImpl context = new ReceiveContextImpl(serializer, flushStrategy);
         while (!context.done) {

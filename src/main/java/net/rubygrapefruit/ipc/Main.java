@@ -6,12 +6,13 @@ import net.rubygrapefruit.ipc.agent.FlushStrategy;
 import net.rubygrapefruit.ipc.agent.GeneratingAgent;
 import net.rubygrapefruit.ipc.agent.Throughput;
 import net.rubygrapefruit.ipc.file.FileGeneratingAgent;
-import net.rubygrapefruit.ipc.message.Message;
+import net.rubygrapefruit.ipc.message.*;
 import net.rubygrapefruit.ipc.tcp.TcpChannelGeneratingAgent;
 import net.rubygrapefruit.ipc.tcp.TcpGeneratingAgent;
 import net.rubygrapefruit.ipc.worker.WorkerMain;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -23,7 +24,7 @@ public class Main {
         optionParser.accepts("flush");
         OptionSet optionSet = optionParser.parse(args);
         Transport transport = toTransport(optionSet.valueOf("transport").toString());
-        Throughput throughput = optionSet.has("slow") ? Throughput.Slow : Throughput.Fast;
+        final Throughput throughput = optionSet.has("slow") ? Throughput.Slow : Throughput.Fast;
         FlushStrategy flush = optionSet.has("flush") ? FlushStrategy.EachMessage : FlushStrategy.EndStream;
 
         System.out.println("* Transport: " + transport);
@@ -32,25 +33,29 @@ public class Main {
 
         System.out.println("* Starting generator");
         GeneratingAgent agent = createAgent(transport);
-        agent.generateFrom(dispatch -> {
-            int messageCount = throughput == Throughput.Fast ? 100000 : 10;
-            for (int i = 0; i < messageCount; i++) {
-                dispatch.send(new Message(String.valueOf(i)));
-                if (throughput == Throughput.Slow) {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+        agent.generateFrom(new Generator() {
+            @Override
+            public void generate(Dispatch dispatch) throws IOException {
+                int messageCount = throughput == Throughput.Fast ? 100000 : 10;
+                for (int i = 0; i < messageCount; i++) {
+                    dispatch.send(new Message(String.valueOf(i)));
+                    if (throughput == Throughput.Slow) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
-            }
-            dispatch.send(new Message("done"));
-        });
-        agent.receiveTo((message, context) -> {
-            if (message.text.equals("done")) {
-                context.done();
-            }
-        });
+                dispatch.send(new Message("done"));
+            }});
+        agent.receiveTo(new Receiver() {
+            @Override
+            public void receive(Message message, ReceiveContext context) throws IOException {
+                if (message.text.equals("done")) {
+                    context.done();
+                }
+            }});
 
         long start = System.currentTimeMillis();
 

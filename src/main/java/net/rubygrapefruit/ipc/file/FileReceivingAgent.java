@@ -28,13 +28,20 @@ public class FileReceivingAgent extends AbstractReceivingAgent {
 
     @Override
     public void start() throws IOException {
-        try (MappedByteBufferBackedSerializer serializer = unsafe
+        MappedByteBufferBackedSerializer serializer = unsafe
                 ? new UnsafeMemoryMappedFileBackedSerializer(send)
                 : new MemoryMappedFileBackedSerializer(send);
-             MappedByteBufferBackedDeserializer deserializer = unsafe
-                     ? new UnsafeMemoryMappedFileBackedDeserializer(receive)
-                     : new MemoryMappedFileBackedDeserializer(receive)) {
-            receiverLoop(deserializer, serializer, receiver);
+        try {
+            MappedByteBufferBackedDeserializer deserializer = unsafe
+                    ? new UnsafeMemoryMappedFileBackedDeserializer(receive)
+                    : new MemoryMappedFileBackedDeserializer(receive);
+            try {
+                receiverLoop(deserializer, serializer, receiver);
+            } finally {
+                deserializer.close();
+            }
+        } finally {
+            serializer.close();
         }
     }
 
