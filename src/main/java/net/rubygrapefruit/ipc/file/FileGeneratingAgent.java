@@ -7,8 +7,13 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileGeneratingAgent extends AbstractGeneratingAgent {
+    private final boolean unsafe;
     private File send;
     private File receive;
+
+    public FileGeneratingAgent(boolean unsafe) {
+        this.unsafe = unsafe;
+    }
 
     @Override
     public void start(FlushStrategy flushStrategy) throws IOException {
@@ -20,11 +25,11 @@ public class FileGeneratingAgent extends AbstractGeneratingAgent {
         receive.deleteOnExit();
         System.out.println("send on: " + send);
         System.out.println("receive on: " + receive);
-        // set up initial file
-        new MemoryMappedFileBackedSerializer(receive).close();
         executorService.execute(() -> {
             try {
-                try (MemoryMappedFileBackedSerializer serializer = new MemoryMappedFileBackedSerializer(send)) {
+                try (MappedByteBufferBackedSerializer serializer = unsafe
+                        ? new UnsafeMemoryMappedFileBackedSerializer(send)
+                        : new MemoryMappedFileBackedSerializer(send)) {
                     generatorLoop(serializer, generator);
                 }
             } catch (IOException e) {
@@ -33,7 +38,9 @@ public class FileGeneratingAgent extends AbstractGeneratingAgent {
         });
         executorService.execute(() -> {
             try {
-                try (MemoryMappedFileBackedDeserializer deserializer = new MemoryMappedFileBackedDeserializer(receive)) {
+                try (MappedByteBufferBackedDeserializer deserializer = unsafe
+                        ? new UnsafeMemoryMappedFileBackedDeserializer(receive)
+                        : new MemoryMappedFileBackedDeserializer(receive)) {
                     receiverLoop(deserializer, noSend(), receiver);
                 }
             } catch (IOException e) {

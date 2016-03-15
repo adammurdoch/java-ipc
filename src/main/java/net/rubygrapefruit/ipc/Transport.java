@@ -4,5 +4,6 @@ public enum Transport {
     Tcp,
     TcpBuffered,
     TcpChannel,
-    File
+    File,
+    FileUnsafe
 }

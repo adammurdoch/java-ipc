@@ -50,7 +50,9 @@ public class WorkerMain {
             case TcpChannel:
                 return new TcpChannelReceivingAgent();
             case File:
-                return new FileReceivingAgent();
+                return new FileReceivingAgent(false);
+            case FileUnsafe:
+                return new FileReceivingAgent(true);
             default:
                 throw new IllegalArgumentException();
         }
